@@ -38,4 +38,22 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+// Use mongoose
+let mongoose = require('mongoose')
+let mongoDB = 'mongodb+srv://vikms:ustdedt8@cluster0.fsmwlf3.mongodb.net/local_library?retryWrites=true&w=majority'
+
+mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true})
+let db = mongoose.connection
+
+db.on('error', console.error.bind(console, 'MongoDB connection error: '))
+
+let Schema = mongoose.Schema
+
+let SomeModelSchema = new Schema({
+  a_string: String,
+  a_date: Date
+})
+
+let SomeModel = mongoose.model('SomeModel', SomeModelSchema)
+
 module.exports = app;
