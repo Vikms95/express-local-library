@@ -9,6 +9,35 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+// Use mongoose
+let mongoose = require('mongoose')
+let newURI = 'mongodb+srv://vikms:ustdedt8@cluster0.fsmwlf3.mongodb.net/local_library?retryWrites=true&w=majority'
+let oldURI = 'mongodb://vikms:ustdedt8@ac-q9epukt-shard-00-00.fsmwlf3.mongodb.net:27017,ac-q9epukt-shard-00-01.fsmwlf3.mongodb.net:27017,ac-q9epukt-shard-00-02.fsmwlf3.mongodb.net:27017/local_library?ssl=true&replicaSet=atlas-xoq9uz-shard-0&authSource=admin&retryWrites=true&w=majority'
+
+mongoose.connect(
+  oldURI,
+  { useNewUrlParser: true, useUnifiedTopology: true },
+  function (err, res) {
+      try {
+          console.log('Connected to Database');
+      } catch (err) {
+          throw err;
+      }
+  });
+  
+let db = mongoose.connection
+
+db.on('error', console.error.bind(console, 'MongoDB connection error: '))
+
+let Schema = mongoose.Schema
+
+let SomeModelSchema = new Schema({
+  a_string: String,
+  a_date: Date
+})
+
+let SomeModel = mongoose.model('SomeModel', SomeModelSchema)
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -37,23 +66,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-// Use mongoose
-let mongoose = require('mongoose')
-let mongoDB = 'mongodb+srv://vikms:ustdedt8@cluster0.fsmwlf3.mongodb.net/local_library?retryWrites=true&w=majority'
-
-mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true})
-let db = mongoose.connection
-
-db.on('error', console.error.bind(console, 'MongoDB connection error: '))
-
-let Schema = mongoose.Schema
-
-let SomeModelSchema = new Schema({
-  a_string: String,
-  a_date: Date
-})
-
-let SomeModel = mongoose.model('SomeModel', SomeModelSchema)
 
 module.exports = app;
