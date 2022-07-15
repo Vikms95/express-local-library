@@ -1,6 +1,7 @@
 var Genre = require('../models/genre');
 var Book = require('../models/book')
 var async = require('async')
+const {body, validationResult} = require('express-validator')
 
 // Display list of all Genre.
 exports.genre_list = function(req, res) {
@@ -43,13 +44,47 @@ exports.genre_detail = function(req, res, next) {
 
 // Display Genre create form on GET.
 exports.genre_create_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre create GET');
+    // Renders genre_form template view and passes *title as a variable
+    res.render('genre_form', {title: 'Create genre'})
 };
 
 // Handle Genre create on POST.
-exports.genre_create_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre create POST');
-};
+exports.genre_create_post = [
+  // Validate and sanitize the 'name' field within the form
+    body('name', 'Genre name required').trim().isLength({min: 1}).escape(),
+    (req, res, next) => {
+
+      // Get any errors from the body method that will
+      // be triggered if the daisy-chained validator methods are not met
+      // ** In this case, it will trigger if the length of the input
+      // ** is lower than 1 
+      const errors = validationResult(req)
+      var genre = new Genre(
+        {name: req.body.name}
+      )
+      // Check if there are errors and re-render the form with the values
+      // again in case there were
+      if(!errors.isEmpty()) {
+        res.render('genre_form', {title: 'Create Genre', genre: genre, errors: errors.array()})
+      }else{
+        Genre.findOne({ 'name': req.body.name})
+          .exec( function( err, found_genre) {
+            if(err) return next(err)
+            // Genre already exists, so redirect to its details page
+            if(found_genre) {
+              res.redirect(found_genre.url)
+            // Genre does not exists, so create and redirect to its details page 
+            }else{
+              genre.save(function(err) {
+                if(err) return next(err)
+                res.redirect(genre.url)
+              })
+            }
+          })
+      }
+    }
+];
+
 
 // Display Genre delete form on GET.
 exports.genre_delete_get = function(req, res) {
