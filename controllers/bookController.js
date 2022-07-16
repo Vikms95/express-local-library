@@ -176,15 +176,13 @@ exports.book_delete_get = function(req, res, next) {
     res.render('book_delete', {title: 'Delete book', book: results.book, bookinstances_list:results.bookinstances})
   }
   )
-  
-  // if(bookinstances.length > 0){
-  //   res.render('book_detail', {title: req.})
-  // }
-    // render the page telling to delete the bookinstances and list them
 };
 
 // Handle book delete on POST.
 exports.book_delete_post = function(req, res) {
+  // If the book has pending bookinstances, do not delete the book and return to the books GET route and show to delete the pending instances
+  // If the book has no pending bookinstances, delete the book and return to the books GET route
+ 
     res.send('NOT IMPLEMENTED: Book delete POST');
 };
 

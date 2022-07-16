@@ -2,3 +2,20 @@ extends layout
 
 block content 
   h1 #{book._id}
+  //- If the book has instances, do not show the delete button and show the book instances to delete before
+  if bookinstances_list.length 
+    div(style='margin-left:20px;margin-top:20px')
+      p #[strong Delete the following books before attempting to delete this author.]
+      h4 Instances
+
+      dl
+      each instance in bookinstances_list
+        hr
+        dt
+          a(href=book.url) #{book.title}
+        dd #{book.summary}
+        dd #{instance.status}
+        dd #{instance.imprint}
+        dd #{instance.due_back}
+  else 
+    h1 hio

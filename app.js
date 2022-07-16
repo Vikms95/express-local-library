@@ -16,9 +16,9 @@ var app = express();
 let mongoose = require('mongoose')
 let newURI = 'mongodb+srv://vikms:ustdedt8@cluster0.fsmwlf3.mongodb.net/local_library?retryWrites=true&w=majority'
 let oldURI = 'mongodb://vikms:ustdedt8@ac-q9epukt-shard-00-00.fsmwlf3.mongodb.net:27017,ac-q9epukt-shard-00-01.fsmwlf3.mongodb.net:27017,ac-q9epukt-shard-00-02.fsmwlf3.mongodb.net:27017/local_library?ssl=true&replicaSet=atlas-xoq9uz-shard-0&authSource=admin&retryWrites=true&w=majority'
-
+console.log(oldURI)
 mongoose.connect(
-  process.env.MONGODB_URI || oldURI,
+  oldURI,
   { useNewUrlParser: true, useUnifiedTopology: true },
   function (err, res) {
       try {
