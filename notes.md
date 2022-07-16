@@ -1,0 +1,3 @@
+-BookInstance depends on nothing
+-Book depends on BookInstances
+-Genre depends on Book

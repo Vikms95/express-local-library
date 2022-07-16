@@ -90,7 +90,7 @@ exports.author_create_post = [
 ];
 
 // Display Author delete form on GET.
-exports.author_delete_get = function(req, res) {
+exports.author_delete_get = function(req, res,next) {
     async.parallel({
       author: function(callback) {
         Author.findById(req.params.id).exec(callback)
