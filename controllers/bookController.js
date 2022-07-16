@@ -5,6 +5,7 @@ var BookInstance = require('../models/bookinstance');
 
 const { body, validationResult} = require('express-validator')
 var async = require('async');
+const book = require('../models/book');
 
 exports.index = function(req, res) {
 
@@ -32,7 +33,7 @@ exports.index = function(req, res) {
 
 
 // Display list of all books.
-exports.book_list = function(req, res) {
+exports.book_list = function(req, res, next) {
   Book.find({}, 'title author')
     .sort({title: 1})
     .populate('author')
@@ -150,8 +151,36 @@ exports.book_create_post = [
 ];
 
 // Display book delete form on GET.
-exports.book_delete_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book delete GET');
+exports.book_delete_get = function(req, res, next) {
+  // Get all the data to check if the book has any dependant info
+  // 1. Get the book itself from the database
+  // 2. Get all the instances from the book
+  async.parallel({
+    // Find the book in the database by querying its id from the url params
+    book: function(callback){
+      Book.findById(req.params.id).exec(callback)
+    },
+    // Find all the book instances from the book 
+    // by querying its "book" property from the BookInstance Schema which stores the book it belongs to
+    bookinstances: function(callback){
+      BookInstance.find({'book': req.params.id}).exec(callback)
+    }
+  }, 
+  // Async executes a callback right after the data is found, so we declare it
+  // with its 'first error param' and the results from the query
+  function(err, results){
+    if(err) return next(err)
+    if(results.book==null){
+      res.redirect('/catalog/books')
+    }
+    res.render('book_delete', {title: 'Delete book', book: results.book, bookinstances_list:results.bookinstances})
+  }
+  )
+  
+  // if(bookinstances.length > 0){
+  //   res.render('book_detail', {title: req.})
+  // }
+    // render the page telling to delete the bookinstances and list them
 };
 
 // Handle book delete on POST.
