@@ -162,7 +162,7 @@ exports.bookinstance_update_post = [
           .exec(callback)
         }
         }, function(err, results){
-          console.log('inside async callback');
+          console.log('inside  callback');
           if(err) return next(err)
             res.render('bookinstance_form', {title: 'Update instance', bookinstance: results.bookinstance, book_list: results.books, errors: errors.array()})
             }
