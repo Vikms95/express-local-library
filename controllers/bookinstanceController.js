@@ -129,6 +129,53 @@ exports.bookinstance_delete_get = function(req, res, next) {
 };
 
 // Handle bookinstance update on POST.
-exports.bookinstance_update_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: BookInstance update POST');
-};
+exports.bookinstance_update_post = [
+  body('book', 'Book must be specified').trim().isLength({ min: 1 }).escape(),
+  body('imprint', 'Imprint must be specified').trim().isLength({ min: 4 }).escape(),
+  body('status').escape(),
+  body('due_back', 'Invalid date').optional({ checkFalsy: true }).isISO8601().toDate(),
+
+  (req,res,next) =>{
+    const errors = validationResult(req)
+    // Create new bookinstance object with the values of req.body.*
+    let bookinstance = new BookInstance({
+      book: req.body.book,
+      imprint:req.body.imprint,
+      status: req.body.status,
+      due_back: req.body.due_back_yyyy_mm_dd,
+      _id: req.params.id
+    })
+    // If errors is not empty, rerender the form with the errors noted below
+    if(!errors.isEmpty()){
+      console.log('before async');
+      
+      async.parallel({
+        books: function(callback){
+          Book.find({}, 'title')
+              .exec(callback)
+        },
+  
+        bookinstance: function(callback){
+          BookInstance
+          .findById(req.params.id)
+          .populate('book')
+          .exec(callback)
+        }
+        }, function(err, results){
+          console.log('inside async callback');
+          if(err) return next(err)
+            res.render('bookinstance_form', {title: 'Update instance', bookinstance: results.bookinstance, book_list: results.books, errors: errors.array()})
+            }
+      )
+    }else{
+      BookInstance
+        .findByIdAndUpdate(req.params.id, bookinstance, {}, function(err, bookinstance){
+          if(err) return next(err)
+          res.redirect(bookinstance.url)
+        })
+    }
+  }
+
+
+]
+    
