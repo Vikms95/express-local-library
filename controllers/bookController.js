@@ -204,7 +204,6 @@ exports.book_delete_post = function(req, res) {
 
 // Display book update form on GET.
 exports.book_update_get = function(req, res, next) {
-
   // Get book, authors and genres for form.
   async.parallel({
       book: function(callback) {

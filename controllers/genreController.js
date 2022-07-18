@@ -128,7 +128,11 @@ exports.genre_delete_post = function(req, res, next) {
 
 // Display Genre update form on GET.
 exports.genre_update_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre update GET');
+    Genre.findById(req.params.id).exec(function(err, genre){
+      if(err) return next(err)
+      // Use the genre form but with the inputs filled with the genre
+      res.render('genre_form', {title:'Update genre', genre: genre})
+    })
 };
 
 // Handle Genre update on POST.
