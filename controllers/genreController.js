@@ -85,10 +85,22 @@ exports.genre_create_post = [
     }
 ];
 
-
 // Display Genre delete form on GET.
-exports.genre_delete_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre delete GET');
+exports.genre_delete_get = function(req, res, next) {
+  // Find all the books and the genres
+    async.parallel({
+      genre: function(callback){
+        Genre.findById(req.params.id).exec(callback)
+      },
+      genre_books: function(callback) {
+        Book.find({'genre': req.params.id}).exec(callback)
+      }
+}, function(err, results){
+  if(err) return next(err)
+  res.render('genre_delete', {title: 'Delete Genre', genre: results.genre, genre_books: results.genre_books})
+}) 
+// If genre has books associated, render them on the page and do not show the delete button
+// Otherwise, show the delete button
 };
 
 // Handle Genre delete on POST.

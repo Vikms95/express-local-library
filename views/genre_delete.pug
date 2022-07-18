@@ -1,0 +1,27 @@
+extends layout
+
+block content 
+  h1 #{genre.name}
+  //- If the book has instances, do not show the delete button and show the book instances to delete before
+  if genre_books.length 
+    div(style='margin-left:20px;margin-top:20px')
+      p #[strong Delete the following books before attempting to delete this genre.]
+      h4 Genres
+
+      dl
+      each book in genre_books
+        hr
+        dt
+          a(href=book.url) #{book.title}
+        dd #{book.summary}
+        dd #{genre.status}
+        dd #{genre.imprint}
+        dd #{genre.due_back}
+  else 
+    p Do you really want to delete this Genre?
+
+    form(method='POST' action='')
+      div.form-group
+        input#genreid.form-control(type='hidden',name='genreid', required='true', value=genre._id )
+
+      button.btn.btn-primary(type='submit') Delete

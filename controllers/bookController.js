@@ -5,7 +5,6 @@ var BookInstance = require('../models/bookinstance');
 
 const { body, validationResult} = require('express-validator')
 var async = require('async');
-const book = require('../models/book');
 
 exports.index = function(req, res) {
 
@@ -182,8 +181,26 @@ exports.book_delete_get = function(req, res, next) {
 exports.book_delete_post = function(req, res) {
   // If the book has pending bookinstances, do not delete the book and return to the books GET route and show to delete the pending instances
   // If the book has no pending bookinstances, delete the book and return to the books GET route
- 
-    res.send('NOT IMPLEMENTED: Book delete POST');
+  async.parallel({
+    book: function(callback){
+      Book.findById(req.params.id).exec(callback)
+    },
+    bookinstances: function(callback){
+      BookInstance.find({'book': req.params.id}).exec(callback)
+    }
+  }, function(err, results){
+    if(err) return next(err)
+    if(results.bookinstances.length > 0){
+      res.render('book_delete', {title: 'Delete book', book: results.book, bookinstances_list:results.bookinstances})
+    }else{
+      console.log(req.body.bookid)
+      Book.findByIdAndRemove(req.body.bookid, function(err){
+        if(err) return next(err)
+        res.redirect('/catalog/books')
+      })
+    }
+  })// callback here  
+  
 };
 
 // Display book update form on GET.
