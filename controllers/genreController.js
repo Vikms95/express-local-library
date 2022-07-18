@@ -136,22 +136,30 @@ exports.genre_update_get = function(req, res) {
   };
   
   // Handle Genre update on POST.
-  exports.genre_update_post =  (req,res,next) => {
+  exports.genre_update_post = [
     // Validation here
+    body('name', 'Genre must contain only letters').trim().isAlpha().escape(),
+    (req,res,next) =>{
+      const errors = validationResult(req)
+      console.log(errors);
+      
       let genre = new Genre(
         {
           _id: req.params.id,
           name: req.body.name
         }
       )      
-      
-      console.log(genre.url)
-      Genre.findByIdAndUpdate(req.params.id, genre, {}, function(err, genre){
-        if(err) return next(err)
-        res.redirect(genre.url)
-      })
-    
-    // Get the id from the req.param
-    // After callback, use Genre.findByIdAndUpdate
-    // 
-  };
+      if(!errors.isEmpty()){
+        Genre.findById(req.params.id).exec(function(err, genre){
+          if(err) return next(err)
+          // Use the genre form but with the inputs filled with the genre
+          res.render('genre_form', {title:'Update genre', genre: genre, errors: errors.array()})
+        })
+      }else{
+        Genre.findByIdAndUpdate(req.params.id, genre, {}, function(err, genre){
+          if(err) return next(err)
+          res.redirect(genre.url)
+        })
+      }
+    }
+  ];
