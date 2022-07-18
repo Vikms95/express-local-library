@@ -193,7 +193,6 @@ exports.book_delete_post = function(req, res) {
     if(results.bookinstances.length > 0){
       res.render('book_delete', {title: 'Delete book', book: results.book, bookinstances_list:results.bookinstances})
     }else{
-      console.log(req.body.bookid)
       Book.findByIdAndRemove(req.body.bookid, function(err){
         if(err) return next(err)
         res.redirect('/catalog/books')
